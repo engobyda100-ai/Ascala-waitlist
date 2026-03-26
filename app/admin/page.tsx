@@ -1,4 +1,4 @@
-import { kv } from "@vercel/kv"
+import Redis from "ioredis"
 
 interface WaitlistEntry {
   email: string
@@ -6,11 +6,14 @@ interface WaitlistEntry {
 }
 
 async function getEntries(): Promise<WaitlistEntry[]> {
+  const redis = new Redis(process.env.REDIS_URL!, { maxRetriesPerRequest: 1, lazyConnect: true })
   try {
-    const raw = await kv.lrange<string>("waitlist", 0, -1)
+    const raw = await redis.lrange("waitlist", 0, -1)
     return raw.map((entry) => JSON.parse(entry) as WaitlistEntry).reverse()
   } catch {
     return []
+  } finally {
+    redis.disconnect()
   }
 }
 
