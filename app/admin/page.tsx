@@ -1,5 +1,4 @@
-import { promises as fs } from "fs"
-import path from "path"
+import { kv } from "@vercel/kv"
 
 interface WaitlistEntry {
   email: string
@@ -8,8 +7,8 @@ interface WaitlistEntry {
 
 async function getEntries(): Promise<WaitlistEntry[]> {
   try {
-    const raw = await fs.readFile(path.join(process.cwd(), "data", "waitlist.json"), "utf-8")
-    return JSON.parse(raw) as WaitlistEntry[]
+    const raw = await kv.lrange<string>("waitlist", 0, -1)
+    return raw.map((entry) => JSON.parse(entry) as WaitlistEntry).reverse()
   } catch {
     return []
   }

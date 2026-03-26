@@ -1,8 +1,5 @@
 import { NextResponse } from "next/server"
-import { promises as fs } from "fs"
-import path from "path"
-
-const DATA_FILE = path.join(process.cwd(), "data", "waitlist.json")
+import { kv } from "@vercel/kv"
 
 function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
@@ -17,12 +14,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Please enter a valid email address" }, { status: 400 })
     }
 
-    const raw = await fs.readFile(DATA_FILE, "utf-8").catch(() => "[]")
-    const list = JSON.parse(raw) as { email: string; submittedAt: string }[]
+    const existing = await kv.lrange<string>("waitlist", 0, -1)
+    const alreadyExists = existing.some((entry) => {
+      try { return (JSON.parse(entry) as { email: string }).email === email } catch { return false }
+    })
 
-    if (!list.some((entry) => entry.email === email)) {
-      list.push({ email, submittedAt: new Date().toISOString() })
-      await fs.writeFile(DATA_FILE, JSON.stringify(list, null, 2))
+    if (!alreadyExists) {
+      await kv.lpush("waitlist", JSON.stringify({ email, submittedAt: new Date().toISOString() }))
     }
 
     return NextResponse.json({ ok: true })
