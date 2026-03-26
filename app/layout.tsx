@@ -13,6 +13,9 @@ export const metadata: Metadata = {
   title: 'Ascala - AI-Powered Testing for SaaS Founders',
   description: 'Test your SaaS with AI personas before real users',
   generator: 'v0.app',
+  icons: {
+    icon: '/ascalaicon.png',
+  },
 }
 
 export default function RootLayout({

@@ -24,11 +24,15 @@ export function Hero() {
           <span className="text-balance">Ship Your SaaS with Confidence.</span>
         </h1>
         
-        <p className="text-lg md:text-xl text-muted-foreground mb-12 opacity-0 animate-fade-in-up animation-delay-200">
+        <p className="text-lg md:text-xl text-muted-foreground mb-4 opacity-0 animate-fade-in-up animation-delay-200">
           AI Persona Simulated Testing
         </p>
 
-        <div id="waitlist" className="opacity-0 animate-fade-in-up animation-delay-300">
+        <p className="text-base md:text-lg text-muted-foreground/80 max-w-2xl mx-auto mb-12 opacity-0 animate-fade-in-up animation-delay-300">
+          Founders love to build & iterate. Ascala turns persona insights into clear, actionable feedback<br />so that every iteration gets closer to what users intuitively expect.
+        </p>
+
+        <div id="waitlist" className="opacity-0 animate-fade-in-up animation-delay-400">
           <WaitlistForm />
         </div>
       </div>

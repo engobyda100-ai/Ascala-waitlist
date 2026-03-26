@@ -25,11 +25,25 @@ export function WaitlistForm({ className }: WaitlistFormProps) {
 
     setStatus("loading")
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    setStatus("success")
-    setEmail("")
+    try {
+      const response = await fetch("/api/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim() }),
+      })
+
+      const data = (await response.json().catch(() => null)) as { error?: string } | null
+
+      if (!response.ok) {
+        throw new Error(data?.error || "Unable to submit your email right now")
+      }
+
+      setStatus("success")
+      setEmail("")
+    } catch (error) {
+      setStatus("error")
+      setErrorMessage(error instanceof Error ? error.message : "Something went wrong. Please try again.")
+    }
   }
 
   if (status === "success") {
