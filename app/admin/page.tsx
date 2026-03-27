@@ -52,7 +52,15 @@ export default async function AdminPage() {
   return (
     <div className="min-h-screen bg-background p-8">
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-2xl font-bold text-foreground mb-2">Waitlist</h1>
+        <div className="flex items-center justify-between mb-2">
+          <h1 className="text-2xl font-bold text-foreground">Waitlist</h1>
+          <a
+            href="/api/waitlist/export"
+            className="text-sm px-4 py-2 bg-foreground text-background rounded-lg font-medium hover:opacity-80"
+          >
+            Export CSV
+          </a>
+        </div>
         <p className="text-muted-foreground mb-6">
           {entries.length} {entries.length === 1 ? "person" : "people"} signed up
         </p>
