@@ -6,7 +6,9 @@ function isValidEmail(email: string) {
 }
 
 function getRedis() {
-  return new Redis(process.env.REDIS_URL!, { maxRetriesPerRequest: 1, lazyConnect: true })
+  const url = process.env.REDIS_URL!
+  const tls = url.startsWith("rediss://") ? { rejectUnauthorized: false } : undefined
+  return new Redis(url, { maxRetriesPerRequest: 1, tls })
 }
 
 export async function POST(request: Request) {

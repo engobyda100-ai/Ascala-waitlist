@@ -6,7 +6,9 @@ interface WaitlistEntry {
 }
 
 async function getEntries(): Promise<WaitlistEntry[]> {
-  const redis = new Redis(process.env.REDIS_URL!, { maxRetriesPerRequest: 1, lazyConnect: true })
+  const url = process.env.REDIS_URL!
+  const tls = url.startsWith("rediss://") ? { rejectUnauthorized: false } : undefined
+  const redis = new Redis(url, { maxRetriesPerRequest: 1, tls })
   try {
     const raw = await redis.lrange("waitlist", 0, -1)
     return raw.map((entry) => JSON.parse(entry) as WaitlistEntry).reverse()
