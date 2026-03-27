@@ -1,16 +1,21 @@
 export const dynamic = "force-dynamic"
 
 import Redis from "ioredis"
+import { revalidatePath } from "next/cache"
 
 interface WaitlistEntry {
   email: string
   submittedAt: string
 }
 
-async function getEntries(): Promise<WaitlistEntry[]> {
+function makeRedis() {
   const url = process.env.REDIS_URL!
   const tls = url.startsWith("rediss://") ? { rejectUnauthorized: false } : undefined
-  const redis = new Redis(url, { maxRetriesPerRequest: 1, tls })
+  return new Redis(url, { maxRetriesPerRequest: 1, tls })
+}
+
+async function getEntries(): Promise<WaitlistEntry[]> {
+  const redis = makeRedis()
   try {
     const raw = await redis.lrange("waitlist", 0, -1)
     return raw.map((entry) => JSON.parse(entry) as WaitlistEntry).reverse()
@@ -21,6 +26,26 @@ async function getEntries(): Promise<WaitlistEntry[]> {
   }
 }
 
+async function deleteEntry(email: string) {
+  "use server"
+  const redis = makeRedis()
+  try {
+    const raw = await redis.lrange("waitlist", 0, -1)
+    for (const item of raw) {
+      try {
+        const parsed = JSON.parse(item) as WaitlistEntry
+        if (parsed.email === email) {
+          await redis.lrem("waitlist", 1, item)
+          break
+        }
+      } catch {}
+    }
+  } finally {
+    redis.disconnect()
+  }
+  revalidatePath("/admin")
+}
+
 export default async function AdminPage() {
   const entries = await getEntries()
 
@@ -28,7 +53,9 @@ export default async function AdminPage() {
     <div className="min-h-screen bg-background p-8">
       <div className="max-w-2xl mx-auto">
         <h1 className="text-2xl font-bold text-foreground mb-2">Waitlist</h1>
-        <p className="text-muted-foreground mb-6">{entries.length} {entries.length === 1 ? "person" : "people"} signed up</p>
+        <p className="text-muted-foreground mb-6">
+          {entries.length} {entries.length === 1 ? "person" : "people"} signed up
+        </p>
 
         {entries.length === 0 ? (
           <p className="text-muted-foreground">No submissions yet.</p>
@@ -39,6 +66,7 @@ export default async function AdminPage() {
                 <th className="px-4 py-3 font-medium">#</th>
                 <th className="px-4 py-3 font-medium">Email</th>
                 <th className="px-4 py-3 font-medium">Submitted</th>
+                <th className="px-4 py-3 font-medium"></th>
               </tr>
             </thead>
             <tbody>
@@ -48,6 +76,21 @@ export default async function AdminPage() {
                   <td className="px-4 py-3 text-foreground font-mono">{entry.email}</td>
                   <td className="px-4 py-3 text-muted-foreground">
                     {new Date(entry.submittedAt).toLocaleString()}
+                  </td>
+                  <td className="px-4 py-3">
+                    <form
+                      action={async () => {
+                        "use server"
+                        await deleteEntry(entry.email)
+                      }}
+                    >
+                      <button
+                        type="submit"
+                        className="text-red-500 hover:text-red-700 text-xs font-medium"
+                      >
+                        Delete
+                      </button>
+                    </form>
                   </td>
                 </tr>
               ))}
