@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic"
 
 import Redis from "ioredis"
-import { revalidatePath } from "next/cache"
+import WaitlistTable from "./WaitlistTable"
 
 interface WaitlistEntry {
   email: string
@@ -26,26 +26,6 @@ async function getEntries(): Promise<WaitlistEntry[]> {
   }
 }
 
-async function deleteEntry(email: string) {
-  "use server"
-  const redis = makeRedis()
-  try {
-    const raw = await redis.lrange("waitlist", 0, -1)
-    for (const item of raw) {
-      try {
-        const parsed = JSON.parse(item) as WaitlistEntry
-        if (parsed.email === email) {
-          await redis.lrem("waitlist", 1, item)
-          break
-        }
-      } catch {}
-    }
-  } finally {
-    redis.disconnect()
-  }
-  revalidatePath("/admin")
-}
-
 export default async function AdminPage() {
   const entries = await getEntries()
 
@@ -68,42 +48,7 @@ export default async function AdminPage() {
         {entries.length === 0 ? (
           <p className="text-muted-foreground">No submissions yet.</p>
         ) : (
-          <table className="w-full text-sm border border-border rounded-lg overflow-hidden">
-            <thead>
-              <tr className="bg-muted text-muted-foreground text-left">
-                <th className="px-4 py-3 font-medium">#</th>
-                <th className="px-4 py-3 font-medium">Email</th>
-                <th className="px-4 py-3 font-medium">Submitted</th>
-                <th className="px-4 py-3 font-medium"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {entries.map((entry, i) => (
-                <tr key={entry.email} className="border-t border-border">
-                  <td className="px-4 py-3 text-muted-foreground">{i + 1}</td>
-                  <td className="px-4 py-3 text-foreground font-mono">{entry.email}</td>
-                  <td className="px-4 py-3 text-muted-foreground">
-                    {new Date(entry.submittedAt).toLocaleString()}
-                  </td>
-                  <td className="px-4 py-3">
-                    <form
-                      action={async () => {
-                        "use server"
-                        await deleteEntry(entry.email)
-                      }}
-                    >
-                      <button
-                        type="submit"
-                        className="text-red-500 hover:text-red-700 text-xs font-medium"
-                      >
-                        Delete
-                      </button>
-                    </form>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <WaitlistTable entries={entries} />
         )}
       </div>
     </div>
