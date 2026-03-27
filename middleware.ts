@@ -9,8 +9,13 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // Protect all /admin and /api/waitlist routes
-  if (pathname.startsWith("/admin") || pathname.startsWith("/api/waitlist")) {
+  // Allow the public waitlist submission endpoint
+  if (pathname === "/api/waitlist" || pathname === "/api/waitlist/") {
+    return NextResponse.next()
+  }
+
+  // Protect admin pages and admin-only API routes (export, delete)
+  if (pathname.startsWith("/admin") || pathname.startsWith("/api/waitlist/")) {
     const auth = request.cookies.get("admin_auth")?.value
     if (auth !== "ascala") {
       const loginUrl = new URL("/admin/login", request.url)
