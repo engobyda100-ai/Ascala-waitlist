@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic"
+
 import Redis from "ioredis"
 
 interface WaitlistEntry {
