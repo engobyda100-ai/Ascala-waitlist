@@ -4,10 +4,12 @@ import Image from "next/image"
 import { useInView } from "@/hooks/use-in-view"
 
 const slides = [
-  { src: "/demo-1.png", alt: "One Workspace" },
-  { src: "/demo-2.png", alt: "Give Context" },
-  { src: "/demo-3.png", alt: "Choose Your AI-Persona Tests" },
-  { src: "/demo-4.png", alt: "Interact with Ascala Intelligence" },
+  { src: "/demo-1.png", alt: "Slide 1" },
+  { src: "/demo-2.png", alt: "Slide 2" },
+  { src: "/demo-3.png", alt: "Slide 3" },
+  { src: "/demo-4.png", alt: "Slide 4" },
+  { src: "/demo-5.png", alt: "Slide 5" },
+  { src: "/demo-6.png", alt: "Slide 6" },
 ]
 
 export function HowItWorks() {
