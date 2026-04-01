@@ -36,7 +36,7 @@ export function HowItWorks() {
                 alt={slide.alt}
                 width={2732}
                 height={1536}
-                className="w-full rounded-2xl shadow-lg"
+                className="w-full"
               />
             </div>
           ))}
