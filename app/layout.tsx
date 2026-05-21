@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   description: 'Test your SaaS with AI personas before real users',
   generator: 'v0.app',
   icons: {
-    icon: '/favicon.svg',
+    icon: '/ascalaicon.png',
   },
 }
 
