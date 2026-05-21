@@ -48,8 +48,6 @@ function ChatBubble({ text, isUser }: { text: string; isUser?: boolean }) {
 function StepLabel({ number, label }: { number: string; label: string }) {
   return (
     <div className="flex items-center gap-3 mb-5">
-      <span className="text-xs font-bold text-amber-500 tracking-widest uppercase">{number}</span>
-      <div className="h-px w-8 bg-amber-500/40" />
       <span className="text-xs text-amber-500/60 tracking-widest uppercase">{label}</span>
     </div>
   )
@@ -76,7 +74,7 @@ function SignalsStep() {
   return (
     <section
       ref={ref}
-      className={`grid md:grid-cols-2 gap-16 items-center transition-all duration-700 ${
+      className={`grid md:grid-cols-2 gap-16 items-center transition-all duration-700 mb-32 ${
         isInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
       }`}
     >
@@ -166,7 +164,7 @@ function WorkspaceStep() {
   return (
     <section
       ref={ref}
-      className={`transition-all duration-700 ${isInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
+      className={`transition-all duration-700 mb-32 ${isInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
     >
       <div className="text-center mb-10">
         <StepLabel number="02" label="The Product" />
@@ -308,7 +306,7 @@ function ContextStep() {
   return (
     <section
       ref={ref}
-      className={`grid md:grid-cols-2 gap-16 items-center transition-all duration-700 ${
+      className={`grid md:grid-cols-2 gap-16 items-center transition-all duration-700 mb-32 ${
         isInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
       }`}
     >
@@ -394,7 +392,7 @@ function TestsStep() {
   return (
     <section
       ref={ref}
-      className={`grid md:grid-cols-2 gap-16 items-center transition-all duration-700 ${
+      className={`grid md:grid-cols-2 gap-16 items-center transition-all duration-700 mb-32 ${
         isInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
       }`}
     >
@@ -467,7 +465,7 @@ function IntelligenceStep() {
   return (
     <section
       ref={ref}
-      className={`grid md:grid-cols-2 gap-16 items-center transition-all duration-700 ${
+      className={`grid md:grid-cols-2 gap-16 items-center transition-all duration-700 mb-32 ${
         isInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
       }`}
     >
@@ -598,7 +596,7 @@ function SimulationStep() {
   return (
     <section
       ref={ref}
-      className={`transition-all duration-700 ${isInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
+      className={`transition-all duration-700 mb-32 ${isInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
     >
       {/* Header */}
       <div className="text-center mb-16">
@@ -727,7 +725,7 @@ function ReportStep() {
   return (
     <section
       ref={ref}
-      className={`text-center transition-all duration-700 ${
+      className={`text-center transition-all duration-700 mb-32 ${
         isInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
       }`}
     >
