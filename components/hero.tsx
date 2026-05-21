@@ -9,13 +9,13 @@ export function Hero() {
 
       <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
         {/* Main Logo centered */}
-        <div className="mb-2 opacity-0 animate-fade-in">
+        <div className="mb-2 opacity-0 animate-fade-in animate-float">
           <Image
-            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Main%20logo-oEntXT5STuarfEErvtwYhxVRp1UzIQ.png"
+            src="/logo.svg"
             alt="Ascala"
-            width={700}
-            height={210}
-            className="h-48 md:h-60 lg:h-72 w-auto mx-auto"
+            width={900}
+            height={270}
+            className="h-64 md:h-80 lg:h-96 w-auto mx-auto"
             priority
           />
         </div>

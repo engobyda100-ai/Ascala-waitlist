@@ -1,14 +1,16 @@
 "use client"
 
 import { useInView } from "@/hooks/use-in-view"
+import { useState, useEffect } from "react"
 import { Link2, BookOpen, Users, FileText, TrendingUp, Zap, CheckSquare, Upload, ArrowRight } from "lucide-react"
 
 // ── Reusable mini UI primitives ──────────────────────────────────────
 
-function Toggle({ checked, label, sub }: { checked: boolean; label: string; sub: string }) {
+function Toggle({ checked, label, sub, onChange }: { checked: boolean; label: string; sub: string; onChange?: (val: boolean) => void }) {
   return (
     <div
-      className={`flex items-center justify-between p-3 rounded-xl border transition-colors ${
+      onClick={() => onChange?.(!checked)}
+      className={`flex items-center justify-between p-3 rounded-xl border transition-colors cursor-pointer ${
         checked ? "bg-amber-500/10 border-amber-500/30" : "bg-white/5 border-white/10"
       }`}
     >
@@ -130,6 +132,36 @@ function SignalsStep() {
 
 function WorkspaceStep() {
   const { ref, isInView } = useInView()
+  const [tests, setTests] = useState({ engagement: true, onboarding: true, accessibility: false, compliance: true })
+  const [runningTests, setRunningTests] = useState(false)
+  const [chatMessages, setChatMessages] = useState(["initial"])
+
+  useEffect(() => {
+    if (!isInView) return
+
+    const timer1 = setTimeout(() => {
+      setChatMessages(prev => [...new Set([...prev, "user-question"])])
+    }, 300)
+
+    const timer2 = setTimeout(() => {
+      setChatMessages(prev => [...new Set([...prev, "response"])])
+    }, 800)
+
+    return () => {
+      clearTimeout(timer1)
+      clearTimeout(timer2)
+    }
+  }, [isInView])
+
+  const updateTest = (key: string, val: boolean) => {
+    setTests(prev => ({ ...prev, [key]: val }))
+  }
+
+  const handleRunTests = () => {
+    setRunningTests(true)
+    setChatMessages(prev => [...new Set([...prev, "running"])])
+    setTimeout(() => setRunningTests(false), 3000)
+  }
 
   return (
     <section
@@ -207,9 +239,18 @@ function WorkspaceStep() {
               </div>
             </div>
             <div className="flex-1 p-4 space-y-3 overflow-hidden">
-              <ChatBubble text="Hi! I'm here to help. The more context you give me, the more insights and test recommendations I can give you. What brings you here today?" />
-              <ChatBubble text="What tests should I run to make sure my audience is engaged with my product?" isUser />
-              <ChatBubble text="You're asking a critical question, but 'audience engagement' is too broad. For a product targeting Product Managers and Designers, I recommend running Engagement + Onboarding tests. Here's your validation checklist..." />
+              {chatMessages.includes("initial") && (
+                <ChatBubble text="Hi! I'm here to help. The more context you give me, the more insights and test recommendations I can give you. What brings you here today?" />
+              )}
+              {chatMessages.includes("user-question") && (
+                <ChatBubble text="What tests should I run to make sure my audience is engaged with my product?" isUser />
+              )}
+              {chatMessages.includes("response") && (
+                <ChatBubble text="You're asking a critical question, but 'audience engagement' is too broad. For a product targeting Product Managers and Designers, I recommend running Engagement + Onboarding tests. Here's your validation checklist..." />
+              )}
+              {(chatMessages.includes("running") || runningTests) && (
+                <ChatBubble text="Running tests with 200 personas..." />
+              )}
             </div>
             <div className="px-4 py-3 border-t border-white/10">
               <div className="bg-white/5 rounded-xl px-4 py-2 text-xs text-gray-500">
@@ -222,20 +263,24 @@ function WorkspaceStep() {
           <div className="p-4 space-y-4">
             <div>
               <p className="text-xs font-bold text-gray-300 uppercase tracking-widest mb-1">Validation Suite</p>
-              <p className="text-[10px] text-gray-500">3 of 4 tests selected</p>
+              <p className="text-[10px] text-gray-500">{Object.values(tests).filter(Boolean).length} of 4 tests selected</p>
             </div>
             <p className="text-[10px] text-gray-400 uppercase tracking-widest font-semibold">Select validation tests</p>
             <div className="space-y-2">
-              <Toggle checked label="Engagement" sub="Pending run" />
-              <Toggle checked label="Onboarding" sub="Pending run" />
-              <Toggle checked={false} label="Accessibility" sub="Not selected" />
-              <Toggle checked label="Compliance" sub="Pending run" />
+              <Toggle checked={tests.engagement} label="Engagement" sub="Pending run" onChange={(val) => updateTest("engagement", val)} />
+              <Toggle checked={tests.onboarding} label="Onboarding" sub="Pending run" onChange={(val) => updateTest("onboarding", val)} />
+              <Toggle checked={tests.accessibility} label="Accessibility" sub="Not selected" onChange={(val) => updateTest("accessibility", val)} />
+              <Toggle checked={tests.compliance} label="Compliance" sub="Pending run" onChange={(val) => updateTest("compliance", val)} />
             </div>
             <div className="flex items-center justify-between text-xs text-gray-500">
-              <span>3 pending · 0 completed</span>
+              <span>{Object.values(tests).filter(Boolean).length} pending · 0 completed</span>
             </div>
-            <button className="w-full py-2 bg-[#C26A43] text-white text-sm font-bold rounded-xl hover:bg-[#C26A43]/90 transition-colors">
-              Run Tests
+            <button
+              onClick={handleRunTests}
+              disabled={runningTests}
+              className="w-full py-2 bg-[#C26A43] text-white text-sm font-bold rounded-xl hover:bg-[#C26A43]/90 transition-colors disabled:opacity-50"
+            >
+              {runningTests ? "Running..." : "Run Tests"}
             </button>
             <div>
               <p className="text-xs text-gray-400 font-semibold mb-2">Results</p>
@@ -327,7 +372,19 @@ function ContextStep() {
 
 function TestsStep() {
   const { ref, isInView } = useInView()
-  const tests = [
+  const [tests, setTests] = useState({ engagement: true, onboarding: true, accessibility: false, compliance: true })
+  const [runningTests, setRunningTests] = useState(false)
+
+  const updateTest = (key: string, val: boolean) => {
+    setTests(prev => ({ ...prev, [key]: val }))
+  }
+
+  const handleRunTests = () => {
+    setRunningTests(true)
+    setTimeout(() => setRunningTests(false), 3000)
+  }
+
+  const testDescriptions = [
     { label: "Engagement", desc: "Are users actually engaged with your core loop?" },
     { label: "Onboarding", desc: "Can new users find value in under 5 minutes?" },
     { label: "Accessibility", desc: "Is your product usable for all user types?" },
@@ -351,7 +408,7 @@ function TestsStep() {
           Select the validation tests that matter most. Ascala runs each one through simulated personas that behave like your real users.
         </p>
         <ul className="space-y-4">
-          {tests.map(({ label, desc }, i) => (
+          {testDescriptions.map(({ label, desc }, i) => (
             <li key={i} className="flex items-start gap-4">
               <div className="w-9 h-9 rounded-xl bg-[#C26A43]/15 border border-[#C26A43]/30 flex items-center justify-center shrink-0 mt-0.5">
                 <CheckSquare className="w-4 h-4 text-[#C26A43]" />
@@ -369,24 +426,28 @@ function TestsStep() {
       <div className="bg-[#1c1a17] border border-white/10 rounded-2xl p-6 shadow-xl">
         <div className="mb-5">
           <p className="text-sm font-bold text-white">Validation Suite</p>
-          <p className="text-xs text-gray-500">3 of 4 tests selected</p>
+          <p className="text-xs text-gray-500">{Object.values(tests).filter(Boolean).length} of 4 tests selected</p>
         </div>
         <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold mb-3">Select validation tests</p>
         <div className="space-y-3 mb-6">
-          <Toggle checked label="Engagement" sub="Pending run" />
-          <Toggle checked label="Onboarding" sub="Pending run" />
-          <Toggle checked={false} label="Accessibility" sub="Not selected" />
-          <Toggle checked label="Compliance" sub="Pending run" />
+          <Toggle checked={tests.engagement} label="Engagement" sub="Pending run" onChange={(val) => updateTest("engagement", val)} />
+          <Toggle checked={tests.onboarding} label="Onboarding" sub="Pending run" onChange={(val) => updateTest("onboarding", val)} />
+          <Toggle checked={tests.accessibility} label="Accessibility" sub="Not selected" onChange={(val) => updateTest("accessibility", val)} />
+          <Toggle checked={tests.compliance} label="Compliance" sub="Pending run" onChange={(val) => updateTest("compliance", val)} />
         </div>
         <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
-          <span>3 pending · 0 completed</span>
-          <button className="px-5 py-2 bg-[#C26A43] text-white text-xs font-bold rounded-lg hover:bg-[#C26A43]/90 transition-colors">
-            Run Tests
+          <span>{Object.values(tests).filter(Boolean).length} pending · 0 completed</span>
+          <button
+            onClick={handleRunTests}
+            disabled={runningTests}
+            className="px-5 py-2 bg-[#C26A43] text-white text-xs font-bold rounded-lg hover:bg-[#C26A43]/90 transition-colors disabled:opacity-50"
+          >
+            {runningTests ? "Running..." : "Run Tests"}
           </button>
         </div>
         <div className="border-t border-white/10 pt-4">
           <p className="text-xs text-gray-400 font-semibold mb-4">Results</p>
-          <div className="text-center py-6 text-xs text-gray-600">No results yet</div>
+          <div className="text-center py-6 text-xs text-gray-600">{runningTests ? "Running tests with 200 personas..." : "No results yet"}</div>
         </div>
       </div>
     </section>
@@ -469,6 +530,61 @@ function IntelligenceStep() {
 
 function SimulationStep() {
   const { ref, isInView } = useInView()
+  const [displayUsers, setDisplayUsers] = useState(0)
+  const [displayCompleted, setDisplayCompleted] = useState(0)
+  const [displaySignals, setDisplaySignals] = useState(0)
+  const [progressWidth, setProgressWidth] = useState(0)
+  const [scrollProgress, setScrollProgress] = useState(0)
+
+  useEffect(() => {
+    if (!isInView) return
+
+    const duration = 3000
+    const startTime = Date.now()
+
+    const animate = () => {
+      const elapsed = Date.now() - startTime
+      const progress = Math.min(elapsed / duration, 1)
+
+      setDisplayUsers(Math.floor(progress * 247))
+      setDisplayCompleted(Math.floor(progress * 189))
+      setDisplaySignals(Math.floor(progress * 42))
+
+      if (progress < 1) requestAnimationFrame(animate)
+    }
+
+    animate()
+  }, [isInView])
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const element = ref.current
+      if (!element) return
+
+      const rect = element.getBoundingClientRect()
+      const elementTop = rect.top
+      const elementHeight = rect.height
+      const viewportHeight = window.innerHeight
+
+      // Calculate where the element is relative to viewport
+      let progress = 0
+      if (elementTop < viewportHeight && elementTop + elementHeight > 0) {
+        // Element is in viewport or passing through
+        progress = (viewportHeight - elementTop) / (viewportHeight + elementHeight)
+        progress = Math.max(0, Math.min(1, progress))
+      } else if (elementTop <= 0) {
+        // Element is above viewport (fully passed)
+        progress = 1
+      }
+
+      setScrollProgress(progress)
+      setProgressWidth(Math.floor(progress * 100))
+    }
+
+    window.addEventListener("scroll", handleScroll)
+    handleScroll() // Call once on mount
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
 
   const users = [
     { name: "Maya T.", role: "Product Manager", action: "Completed onboarding", ms: 142, pass: true },
@@ -518,10 +634,10 @@ function SimulationStep() {
         {/* Stats row */}
         <div className="grid grid-cols-4 divide-x divide-white/10 border-b border-white/10">
           {[
-            { label: "Digital Users", value: "247", color: "text-amber-500" },
+            { label: "Digital Users", value: displayUsers, color: "text-amber-500" },
             { label: "Tests Running", value: "3", color: "text-white" },
-            { label: "Completed", value: "189", color: "text-green-400" },
-            { label: "Signals Found", value: "42", color: "text-[#C26A43]" },
+            { label: "Completed", value: displayCompleted, color: "text-green-400" },
+            { label: "Signals Found", value: displaySignals, color: "text-[#C26A43]" },
           ].map(({ label, value, color }) => (
             <div key={label} className="px-6 py-5 text-center">
               <p className={`text-3xl font-black ${color}`}>{value}</p>
@@ -534,30 +650,49 @@ function SimulationStep() {
         <div className="p-6">
           <p className="text-xs text-gray-500 uppercase tracking-widest font-bold mb-4">Live Persona Feed</p>
           <div className="space-y-2">
-            {users.map((user, i) => (
-              <div
-                key={i}
-                className={`flex items-center gap-4 px-4 py-3 rounded-xl border ${
-                  user.pass
-                    ? "bg-green-500/5 border-green-500/20"
-                    : "bg-red-500/5 border-red-500/20"
-                }`}
-                style={{ transitionDelay: `${i * 80}ms` }}
-              >
-                <div className={`w-2 h-2 rounded-full shrink-0 ${user.pass ? "bg-green-400" : "bg-red-400"} animate-pulse`} />
-                <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-white shrink-0">
-                  {user.name[0]}
+            {users.map((user, i) => {
+              // Calculate color transition based on scroll progress and user pass/fail
+              const bgColor = user.pass
+                ? `rgba(34, 197, 94, ${0.05 * scrollProgress})`
+                : `rgba(239, 68, 68, ${0.05 * scrollProgress})`
+              const borderColor = user.pass
+                ? `rgba(34, 197, 94, ${0.2 * scrollProgress + 0.1})`
+                : `rgba(239, 68, 68, ${0.2 * scrollProgress + 0.1})`
+              const dotColor = user.pass
+                ? `rgba(74, 222, 128, ${scrollProgress})`
+                : `rgba(248, 113, 113, ${scrollProgress})`
+              const textColor = user.pass
+                ? `rgba(134, 239, 172, ${scrollProgress + 0.3})`
+                : `rgba(252, 165, 165, ${scrollProgress + 0.3})`
+
+              return (
+                <div
+                  key={i}
+                  className="flex items-center gap-4 px-4 py-3 rounded-xl border transition-colors duration-1000"
+                  style={{
+                    backgroundColor: bgColor,
+                    borderColor: borderColor,
+                    transitionDelay: `${i * 80}ms`,
+                  }}
+                >
+                  <div
+                    className="w-2 h-2 rounded-full shrink-0 animate-pulse"
+                    style={{ backgroundColor: dotColor }}
+                  />
+                  <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-white shrink-0">
+                    {user.name[0]}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <span className="text-sm font-semibold text-white">{user.name}</span>
+                    <span className="text-xs text-gray-500 ml-2">{user.role}</span>
+                  </div>
+                  <p className="text-sm truncate max-w-[200px]" style={{ color: textColor }}>
+                    {user.action}
+                  </p>
+                  <span className="text-[11px] text-gray-600 shrink-0">{user.ms}ms</span>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <span className="text-sm font-semibold text-white">{user.name}</span>
-                  <span className="text-xs text-gray-500 ml-2">{user.role}</span>
-                </div>
-                <p className={`text-sm ${user.pass ? "text-green-300" : "text-red-300"} truncate max-w-[200px]`}>
-                  {user.action}
-                </p>
-                <span className="text-[11px] text-gray-600 shrink-0">{user.ms}ms</span>
-              </div>
-            ))}
+              )
+            })}
           </div>
           <div className="mt-4 flex items-center justify-between text-xs text-gray-600">
             <span>+ 241 more users running...</span>
@@ -573,10 +708,10 @@ function SimulationStep() {
         <div className="px-6 pb-6">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs text-gray-500">Simulation progress</span>
-            <span className="text-xs text-amber-500 font-bold">76%</span>
+            <span className="text-xs text-amber-500 font-bold">{progressWidth}%</span>
           </div>
           <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
-            <div className="h-full bg-gradient-to-r from-amber-500 to-[#C26A43] rounded-full" style={{ width: "76%" }} />
+            <div className="h-full bg-gradient-to-r from-amber-500 to-[#C26A43] rounded-full transition-all duration-1000" style={{ width: `${progressWidth}%` }} />
           </div>
         </div>
       </div>

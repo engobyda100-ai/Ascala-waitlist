@@ -1,0 +1,20 @@
+<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1024" height="1024" fill="transparent"/>
+
+  <!-- Dark brown stepped shape on left -->
+  <g fill="#3D1700">
+    <rect x="160" y="240" width="200" height="200"/>
+    <rect x="160" y="480" width="160" height="304"/>
+  </g>
+
+  <!-- Orange/tan triangle and trapezoid -->
+  <g fill="#C26A43">
+    <polygon points="400,240 600,240 500,440"/>
+    <polygon points="400,480 560,480 600,704 360,704"/>
+  </g>
+
+  <!-- Right orange bar with skew -->
+  <g fill="#C26A43">
+    <rect x="640" y="320" width="160" height="384" transform="skewX(-10)"/>
+  </g>
+</svg>

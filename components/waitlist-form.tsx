@@ -74,12 +74,13 @@ export function WaitlistForm({ className }: WaitlistFormProps) {
           <p className="text-destructive text-sm mt-2 text-left pl-4">{errorMessage}</p>
         )}
       </div>
-      <Button 
+      <Button
         type="submit"
         disabled={status === "loading"}
-        className="h-14 px-8 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold whitespace-nowrap rounded-full transition-all duration-300 hover:shadow-lg hover:shadow-primary/20 text-base"
+        className="group relative overflow-hidden h-14 px-8 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold whitespace-nowrap rounded-full transition-all duration-300 hover:shadow-lg hover:shadow-primary/20 text-base hover:scale-105 active:scale-95"
       >
-        {status === "loading" ? "Joining..." : "Join Waitlist"}
+        <span className="relative z-10">{status === "loading" ? "Joining..." : "Join Waitlist"}</span>
+        <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent group-hover:animate-shimmer" />
       </Button>
     </form>
   )

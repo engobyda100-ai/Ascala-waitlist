@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Dosis } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { MouseTracker } from '@/components/mouse-tracker'
 import './globals.css'
 
 const dosis = Dosis({
@@ -14,7 +15,7 @@ export const metadata: Metadata = {
   description: 'Test your SaaS with AI personas before real users',
   generator: 'v0.app',
   icons: {
-    icon: '/ascalaicon.png',
+    icon: '/favicon.svg',
   },
 }
 
@@ -26,6 +27,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <body className={`${dosis.variable} font-sans antialiased bg-white text-foreground`}>
+        <MouseTracker />
         {children}
         <Analytics />
       </body>
